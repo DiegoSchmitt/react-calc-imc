@@ -1,26 +1,75 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import styles from './App.module.css';
+import poweredImage from './assets/powered.png';
+import leftArrowImage from './assets/leftarrow.png';
+import { GridItem } from './components/GridItem';
+import { levels, calculateImc, Level } from './helpers/imc';
+const App = () =>{
+  const [heightField, setHigthField] = useState<number>(0);
+  const [weightField, setWeightField] = useState<number>(0);
+  const [toShow, setToShow] = useState<Level | null>(null);
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+  const handleCalculateButton = () => {
+    if(heightField && weightField){
+      setToShow(calculateImc(heightField, weightField));
+    }else{
+      alert('Digite todos os campos');
+    }
+  }
+
+  const handleBackButton = () =>{
+    setToShow(null);
+    setHigthField(0);
+    setWeightField(0);
+  }
+  return(
+    <div className={styles.main}>
+      <header>
+        <div className={styles.headerContainer}>
+          <img src={poweredImage} alt="" width={50}/>
+        </div>
       </header>
+      <div className={styles.container}>
+        <div className={styles.leftSide}>
+          <h1>Clacule o seu IMC</h1>
+          <p>IMC é a sigla para Índice de Massa Corpórea, parâmetro adotado pela Organização Mundial de Saúde para calcular o peso ideal de cada pessoa.</p>
+          <input 
+            type="number" 
+            placeholder="Digite a sua altura. Ex: 1.5 (Em metros)"
+            value={heightField > 0 ? heightField : ''}
+            onChange={e => setHigthField(parseFloat(e.target.value))}
+            disabled={toShow ? true : false}
+          />
+
+          <input 
+            type="number" 
+            placeholder="Digite a seu peso. Ex: 75.3 (Em Kg)"
+            value={weightField > 0 ? weightField : ''}
+            onChange={e => setWeightField(parseFloat(e.target.value))}
+            disabled={toShow ? true : false}
+          />
+
+          <button onClick={handleCalculateButton} disabled={toShow ? true : false}>Clacular</button>
+        </div>
+        <div className={styles.rightSide}>
+        {!toShow &&
+          <div className={styles.grid}>
+            {levels.map((item, key)=>(
+              <GridItem key={key} item={item}/>
+            ))}
+          </div>
+        }
+        {toShow && 
+          <div className={styles.rightBig}>
+            <div className={styles.rightArrow} onClick={handleBackButton}>
+              <img src={leftArrowImage} width={25}/>
+            </div>
+            <GridItem item={toShow}/>
+          </div>
+        }
+        </div>
+      </div>
     </div>
   );
 }
-
 export default App;
